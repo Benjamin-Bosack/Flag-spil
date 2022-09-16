@@ -20,7 +20,7 @@ PImage j;
 
 PImage Start;
 
-PImage backpic, birdpic, wallpic, welcomescreen;
+PImage backpic, birdpic, wallpic, welcomescreen, flapBack, wrong, correct;
 
 void setup() {
 
@@ -52,16 +52,18 @@ game = 1; score = 0; highscore = 0;
   myPI.add(loadImage("i.png"));
   myPI.add(loadImage("j.png"));
   
+  welcomescreen=loadImage("welcomescreen.jpg");
+  flapBack=loadImage("welcomepic.png");
+  
   for (int i = 0; i< myPI.size(); i++) myPI.get(i).resize(1000,800);// shuffleList.append(i);
   for (int i = 0; i< myPI.size(); i++) shuffleList.append(i);
   
    backpic =loadImage("https://raw.githubusercontent.com/Gaspared/FlappyBird/main/img/back.png");
    birdpic =loadImage("https://raw.githubusercontent.com/Gaspared/FlappyBird/main/img/bird.png");
    wallpic =loadImage("https://raw.githubusercontent.com/Gaspared/FlappyBird/main/img/wall.png");
-  
-   game = 1; score = 0; highscore = 0; x = -200; vertical = 0; 
-  fill(0,0,0);
-  textSize(20); 
+   wrong = loadImage("wrong.png");
+  correct = loadImage("correct.jpg");
+   
   
 }
 
@@ -69,7 +71,9 @@ void draw() {
 
   //a.resize
   
-  if (gameState == "START") {
+  if (gameState == "INNIT") {
+    innitGame();
+    } else if (gameState == "START") {
     startGame();
   } else if (gameState == "PLAY") {
     playGame();
@@ -84,14 +88,34 @@ void draw() {
     else if (gameState == "TEN"){
       ten();
 }
+
 }
 
+void innitGame(){
+  imageMode(CORNER);
+  game = 1; score = 0; highscore = 0; x = -200; vertical = 0; 
+  fill(0,0,0);
+  textSize(20); 
+  gameState="START";
+}
+
+
+
+
+
+//hej
 void startGame() {
-  background(66, 245, 167);
+  image(welcomescreen, 0,0);
   textAlign(CENTER);
+  textSize(50);
+  fill(0,0,0);
+  text("Flag bird", width/2, height/5);
   textSize(18);
-  fill(255, 0, 0);
-  text("Click anywhere to start", width/2, height/2);
+  fill(0, 0, 0);
+  text("Your goal is to select the correct country", width/2, height/3);
+  text("Match the flag to the names", width/2, height/2.5);
+  text("Use keys, 1,2,3 and 4 to select your answers", width/2, height/2);
+  text("Click anywhere to start", width/2, height/1.5);
   if (mousePressed == true)
    gameState="PLAY";
   
@@ -104,6 +128,7 @@ void playGame() {
     shuffleNow = false;
     
     }
+    imageMode(CORNER);
   image(myPI.get(shuffleList.get(counter)), 0, 0);
   println(myAnswer.get(shuffleList.get(counter)));
   {
@@ -124,46 +149,51 @@ void playGame() {
   }
 }
 void winGame() {
-  background(#59FF00);
+  image(correct, 0,0);
   textAlign(CENTER);
-  textSize(75);
-  fill(100, 100);
-  text("CORRECT!", width/2, height/2);
-  text("Click for another question!", width/2, height/1.5);
+  textSize(40);
+  fill(0,0,0);
+  text("CORRECT!", width/2, height/5);
+  text("Click for another question!", width/2, height/1.3);
    textSize(25);
     text("Current Score:"+score,200,100);
   
   if (mousePressed == true){
    gameState="PLAY";
-   if(score == 1) gameState = "TEN";
+   if(score == 10) gameState = "TEN";
   }
 }
 
 void ten(){
-   gameState="BIRD";
-   textSize(25);
-    text("Score: "+score, 200, 130);
-    text("/10", 260, 130);
-    text("Congrats! Click to play!", width/2, height/1.5);
+  image(flapBack,0,0);
+  flapBack.resize(width, height);
+  textSize(55);
+  fill(250,250,250);
+  text("FLAGGY BIRD", width/2, height/4.6);
+   textSize(35);
+   fill(250,250,250);
+    text("Congratulations on completing", width/2, height/3);
+    text("ten correct answers in a row!", width/2, height/2.7);
+    text("Click to access a secret gamemode!", width/2, height/2.3);
+    text("Use the spacebar to start/jump", width/2, height/2);
+    text("GET READY!", width/2, height/1.2);
     if (keyPressed)
     if (key==' ')
-    
    gameState="BIRD";
 }
 
 
 void loseGame() {
-  background(#FF0000);
-  textAlign(CENTER);
-  textSize(75);
-  fill(100, 100);
-  text("WRONG!", width/2, height/2);
-  text("Click for another question!", width/2, height/1.5);
+  image(wrong, 0,0);
+
+
+  
   if (mousePressed == true)
    gameState="PLAY";
    
    textSize(25);
-    text("Current Score:"+score,200,100);
+   fill(0,0,0);
+    text("Current Score: "+score,200,100);
 }
 
 
@@ -185,7 +215,7 @@ void flappyBird(){
         wallx[i] = width;
       }
       if(wallx[i] == width/2) highscore = max(++score, highscore);
-      if(y>height||y<0||(abs(width/2-wallx[i])<25 && abs(y-wally[i])>100)) game=1;
+      if(y>height||y<0||(abs(width/2-wallx[i])<25 && abs(y-wally[i])>100)) gameState="INNIT";
       wallx[i] -= 7;
     }
     image(birdpic, width/2, y);
