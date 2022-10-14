@@ -1,3 +1,4 @@
+import de.bezier.data.sql.*;
 
 ArrayList<PImage> myPI = new ArrayList<PImage>();
 ArrayList<Integer> myAnswer = new ArrayList<Integer>();
@@ -21,9 +22,21 @@ PImage j;
 PImage Start;
 
 PImage backpic, birdpic, wallpic, welcomescreen, flapBack, wrong, correct;
+DB myDatabase; // = new DB();
+
+int startHigh = 0;
 
 void setup() {
 
+    myDatabase = new DB();
+
+  myDatabase.getDatabase(this);
+  myDatabase.getData();
+
+
+  startHigh = myDatabase.getHigh();
+
+  
   size(600,800);
   gameState="START";
 
@@ -72,15 +85,24 @@ void draw() {
   //a.resize
   
   if (gameState == "INNIT") {
+
     innitGame();
+    println("init");
     } else if (gameState == "START") {
+    startHigh = myDatabase.getHigh();
     startGame();
+    println("start");
   } else if (gameState == "PLAY") {
     playGame();
+    println("play");
   } else if (gameState == "WIN") {
     winGame();
+    println("win");
+    count = 0;
   } else if (gameState == "LOSE") {
     loseGame();
+    println("lose");
+
   }
     else if (gameState == "BIRD"){
     flappyBird();
@@ -105,6 +127,7 @@ void innitGame(){
 
 //hej
 void startGame() {
+  
   image(welcomescreen, 0,0);
   textAlign(CENTER);
   textSize(50);
@@ -116,6 +139,8 @@ void startGame() {
   text("Match the flag to the names", width/2, height/2.5);
   text("Use keys, 1,2,3 and 4 to select your answers", width/2, height/2);
   text("Click anywhere to start", width/2, height/1.5);
+  
+  text("Highscore: " + startHigh, width/2,height/1.25);
   if (mousePressed == true)
    gameState="PLAY";
   
@@ -160,7 +185,7 @@ void winGame() {
   
   if (mousePressed == true){
    gameState="PLAY";
-   if(score == 10) gameState = "TEN";
+   if(score == 3) gameState = "TEN";
   }
 }
 
@@ -196,6 +221,7 @@ void loseGame() {
     text("Current Score: "+score,200,100);
 }
 
+int count =0;
 
 void flappyBird(){
   
@@ -213,9 +239,19 @@ void flappyBird(){
       if(wallx[i] < 0) {
         wally[i] = (int)random(200,height-200);
         wallx[i] = width;
+        println("FLappy test 1");
+        count++;
       }
-      if(wallx[i] == width/2) highscore = max(++score, highscore);
-      if(y>height||y<0||(abs(width/2-wallx[i])<25 && abs(y-wally[i])>100)) gameState="INNIT";
+      if(wallx[i] == width/2){ 
+        highscore = max(++score, highscore);
+        println("Flappy done 1 !");
+      }
+      if(y>height||y<0||(abs(width/2-wallx[i])<25 && abs(y-wally[i])>100)){ 
+        println("Flappy done 2!");
+        myDatabase.setData(1,count);
+        
+        gameState="INNIT";
+      }
       wallx[i] -= 7;
     }
     image(birdpic, width/2, y);
